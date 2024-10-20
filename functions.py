@@ -15,13 +15,10 @@ def get_service_info(service_name):
     memory_match = re.search(r'Memory:\s+([\d.]+[KMG]?)', status_output.stdout)
     cpu_match = re.search(r'CPU:\s+([\d.]+)', status_output.stdout)
     uptime_match = re.search(r'Active:\s+.*\s+since\s+(.+?)(?:\s+\(.*\))?', status_output.stdout)
-    print(f"active_match: {active_match}")
     # Передача информации
     if active_match:
         status = active_match.group(1).strip()  # Получаем статус службы
-        #print(f"status: {status}")
         time_info = active_match.group(2).strip() if active_match.group(2) else "N/A"
-        #print(f"time_info: {time_info}")
         if "inactive" in status:
             is_active = f"Inactive ({time_info})"
         else:

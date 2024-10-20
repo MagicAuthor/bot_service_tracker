@@ -5,10 +5,7 @@ from config import ADMINS
 class AdminCheckMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):
         # Проверяем, является ли событие от администратора
-        print("из middleware")
         user_id = event.from_user.id if isinstance(event, (CallbackQuery, Message)) else None
-        print("user_id: ", user_id)
-        print("ADMINS: ", ADMINS)
         if user_id and user_id in ADMINS:
             data['is_admin'] = True  # Передаем информацию о том, что пользователь админ
         else:
