@@ -9,7 +9,6 @@ from config import API_TOKEN
 from handlers import start, admin_kb, service_kb
 from middleware import AdminCheckMiddleware
 
-
 async def set_bot_commands(bot: Bot) -> None:
     commands = [
         BotCommand(command="start", description="Начать работу")
@@ -22,8 +21,7 @@ async def init_db() -> None:
         await db.execute('''
             CREATE TABLE IF NOT EXISTS services (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                status TEXT NOT NULL
+                name TEXT NOT NULL
             )
         ''')
         await db.commit()
@@ -31,11 +29,8 @@ async def init_db() -> None:
 async def main() -> None:
     bot = Bot(token=API_TOKEN)
     dp = Dispatcher()
-
-    # Подключаем промежуточное ПО для проверки прав администратора
     dp.message.middleware(AdminCheckMiddleware())
     dp.callback_query.middleware(AdminCheckMiddleware())
-
     dp.include_router(start.router)
     dp.include_router(admin_kb.router)
     dp.include_router(service_kb.router)

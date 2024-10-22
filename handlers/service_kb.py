@@ -22,7 +22,7 @@ async def handle_service_action(callback_query: CallbackQuery):
     text = (f"Вы выбрали службу {service_name}{status_icon}.\n"
             f"Статус: {service_info['is_active']}\n"
             f"PID: {service_info['pid']}\n"
-            f"Память: {service_info['memory']} М\n"
+            f"Память: {service_info['memory']}\n"
             f"CPU: {service_info['cpu']}s\n"
             f"Выберите действие👇")
     keyboard = InlineKeyboardMarkup(
@@ -44,10 +44,6 @@ async def restart_service(callback_query: CallbackQuery, bot: Bot) -> None:
     if is_service_exist(service_name):
         subprocess.run(["sudo", "systemctl", "restart", service_name], check=True)
         await callback_query.message.answer(f"Служба {service_name} перезапущена")
-        # Обновляем статус в базе данных
-        async with aiosqlite.connect("database.db") as db:
-            await db.execute("UPDATE services SET status = ? WHERE name = ?", ("active", service_name))
-            await db.commit()
     else:
         await callback_query.message.answer(f"Служба {service_name} не существует в системе")
     keyboard, _ = await create_service_keyboard()
@@ -64,17 +60,11 @@ async def toggle_service(callback_query: CallbackQuery, bot: Bot):
         if status == "active":
             # Останавливаем службу
             subprocess.run(["sudo", "systemctl", "stop", service_name], check=True)
-            new_status = "inactive"
             await callback_query.message.answer(f"Служба {service_name} выключена")
         else:
             # Запускаем службу
             subprocess.run(["sudo", "systemctl", "start", service_name], check=True)
-            new_status = "active"
             await callback_query.message.answer(f"Служба {service_name} включена")
-        # Обновляем статус в базе данных
-        async with aiosqlite.connect("database.db") as db:
-            await db.execute("UPDATE services SET status = ? WHERE name = ?", (new_status, service_name))
-            await db.commit()
     else:
         await callback_query.message.answer(f"Служба {service_name} не существует в системе")
     keyboard, _ = await create_service_keyboard()

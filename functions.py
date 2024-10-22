@@ -2,7 +2,7 @@ import subprocess
 import re
 
 # Функция для получения статуса службы
-def get_service_status(service_name):
+def get_service_status(service_name) -> str:
     result = subprocess.run(["systemctl", "is-active", service_name], stdout=subprocess.PIPE)
     return "active" if result.stdout.decode().strip() == "active" else "inactive"
 
